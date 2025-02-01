@@ -3,6 +3,7 @@
 
 #include "treemodel.h"
 #include "mainwindow.h"
+#include "settingsdialog.h"
 
 class GridDialog : public QDialog
 {
@@ -35,6 +36,8 @@ public:
 
 MainWindow::MainWindow(QWidget *parent)
     : RibbonMainWindow(parent)
+    , m_panel_1(Q_NULL)
+    , m_panel_2(Q_NULL)
 {
     const QRect availableGeometry = screen()->availableGeometry();
     resize(availableGeometry.width() / 4 * 3, availableGeometry.height() / 4 * 3);
@@ -54,6 +57,10 @@ MainWindow::MainWindow(QWidget *parent)
     m_ribbonBar->page(0)->group(2)->addAction(QIcon(tr("://res/Log.svg")), tr("Протокол работы"));
     m_ribbonBar->setFont(QFont("Calibri", 9));
     setRibbonBar(m_ribbonBar);
+
+    connect(m_ribbonBar->page(0)->group(1)->actions().at(0), SIGNAL(triggered()), this, SLOT(on_setingsButtonClicked()));
+    connect(m_ribbonBar->page(0)->group(2)->actions().at(0), SIGNAL(triggered()), this, SLOT(on_taskListButtonClicked()));
+    connect(m_ribbonBar->page(0)->group(2)->actions().at(1), SIGNAL(triggered()), this, SLOT(on_logButtonClicked()));
 
     const QStringList headers1({ tr("Название базы"), tr("Регион"), tr("Дата обновления"), tr("Размер") });
     QFile file1("://res/primerDB.txt");
@@ -105,25 +112,39 @@ MainWindow::MainWindow(QWidget *parent)
 
     setCentralWidget(m_tabWidget);
     m_manager = new DockPanelManager(this);
-
     m_panel_1 = m_manager->addDockPanel("Список задач", Qtitan::BottomDockPanelArea);
-        GridDialog *dlg = new GridDialog(m_grid1);
-        m_panel_1->setObjectName("_qtn_widget_panel_id_1");
-        m_panel_1->setIcon(QIcon(tr("://res/TaskList.svg")));
-        m_panel_1->resize(m_panel_1->width(), height() / 2);
-        m_panel_1->setMinimumHeight(m_panel_1->height() / 5);
-        m_panel_1->setWidget(dlg);
-
-        m_panel_2 = m_manager->addDockPanel("Протокол работы", Qtitan::InsideDockPanelArea, m_panel_1);
-        m_panel_2->setObjectName("_qtn_widget_panel_id_2");
-        m_panel_2->setIcon(QIcon(tr("://res/Log.svg")));
-        m_panel_2->setMinimumHeight(m_panel_1->height() / 5);
-        m_panel_2->setWidget(m_grid2);
-
+    m_panel_1->setIcon(QIcon(tr("://res/TaskList.svg")));
+//    m_panel_1->resize(m_panel_1->width(), height() / 2);
+//    m_panel_1->setMinimumHeight(m_panel_1->height() / 5);
+    GridDialog *dlg = new GridDialog(m_grid1);
+    m_panel_1->setObjectName("_qtn_widget_panel_id_1");
+    m_panel_1->setWidget(dlg);
+    m_panel_2 = m_manager->addDockPanel("Протокол работы", Qtitan::InsideDockPanelArea, m_panel_1);
+    m_panel_2->setObjectName("_qtn_widget_panel_id_2");
+    m_panel_2->setIcon(QIcon(tr("://res/Log.svg")));
+//    m_panel_2->setMinimumHeight(m_panel_1->height() / 5);
+    m_panel_2->setWidget(m_grid2);
     setWindowState(Qt::WindowMaximized);
 }
 
 MainWindow::~MainWindow()
 {
+}
+
+void MainWindow::on_setingsButtonClicked()
+{
+    SettingsDialog* dlg = new SettingsDialog();
+    dlg->setModal(true);
+    dlg->exec();
+}
+
+void MainWindow::on_taskListButtonClicked()
+{
+//    m_panel_1->closePanel();
+}
+
+void MainWindow::on_logButtonClicked()
+{
+//    m_manager->showDockPanel(m_panel_1);
 }
 

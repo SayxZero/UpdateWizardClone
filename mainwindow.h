@@ -34,6 +34,11 @@ private:
     Qtitan::Grid* m_grid1;
     Qtitan::Grid* m_grid2;
 
+public slots:
+
+    void on_setingsButtonClicked();
+    void on_taskListButtonClicked();
+    void on_logButtonClicked();
 
 };
 #endif // MAINWINDOW_H
