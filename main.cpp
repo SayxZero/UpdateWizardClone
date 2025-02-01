@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "settingsdialog.h"
 
 #include <QApplication>
 
@@ -8,5 +9,7 @@ int main(int argc, char *argv[])
     MainWindow w;
 //    w.showMaximized();
     w.show();
+    SettingsDialog dlg;
+    dlg.show();
     return a.exec();
 }
