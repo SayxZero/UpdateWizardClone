@@ -5,34 +5,7 @@
 #include "mainwindow.h"
 #include "settingsdialog.h"
 
-class GridDialog : public QDialog
-{
-public:
-    GridDialog(Grid *grid) {
-        QSize buttonSize = QSize(30, 30);
-        m_stopButton = new QPushButton(QIcon(tr("://res/Stop.svg")), "");
-        m_stopButton->setEnabled(false);
-        m_stopButton->setIconSize(buttonSize);
-        m_removeButton = new QPushButton(QIcon(tr("://res/Remove.svg")), "");
-        m_removeButton->setEnabled(false);
-        m_removeButton->setIconSize(buttonSize);
-        m_changeButton = new QPushButton(QIcon(tr("://res/Program.svg")), "");
-        m_changeButton->setEnabled(false);
-        m_changeButton->setIconSize(buttonSize);
-        QVBoxLayout *vlayout = new QVBoxLayout(this);
-        QHBoxLayout *hlayout = new QHBoxLayout();
-        vlayout->addLayout(hlayout);
-        vlayout->addWidget(grid);
-        QSpacerItem *spacer = new QSpacerItem(buttonSize.width(), buttonSize.height(), QSizePolicy::Expanding, QSizePolicy::Minimum);
-        hlayout->addWidget(m_stopButton);
-        hlayout->addWidget(m_removeButton);
-        hlayout->addWidget(m_changeButton);
-        hlayout->addItem(spacer);
-    }
-    QPushButton* m_stopButton;
-    QPushButton* m_removeButton;
-    QPushButton* m_changeButton;
-};
+
 
 MainWindow::MainWindow(QWidget *parent)
     : RibbonMainWindow(parent)
@@ -45,6 +18,14 @@ MainWindow::MainWindow(QWidget *parent)
     setMinimumHeight(availableGeometry.height() / 3);
     setMinimumWidth(availableGeometry.width() / 5);
 
+    m_panelAction1 = new QAction(QIcon(tr("://res/TaskList.svg")), tr("Список задач"));
+    m_panelAction1->setCheckable(true);
+    m_panelAction1->setChecked(true);
+
+    m_panelAction2 = new QAction(QIcon(tr("://res/Log.svg")), tr("Протокол работы"));
+    m_panelAction2->setCheckable(true);
+    m_panelAction2->setChecked(true);
+
     m_ribbonBar = new RibbonBar(this);
     m_ribbonBar->addPage(QStringLiteral("Главная"));
     m_ribbonBar->page(0)->addGroup(tr("Данные"));
@@ -53,14 +34,14 @@ MainWindow::MainWindow(QWidget *parent)
     m_ribbonBar->page(0)->addGroup(tr("Настройки"));
     m_ribbonBar->page(0)->group(1)->addAction(QIcon(tr("://res/Settings.svg")), tr("Настройки"));
     m_ribbonBar->page(0)->addGroup(tr("Вид"));
-    m_ribbonBar->page(0)->group(2)->addAction(QIcon(tr("://res/TaskList.svg")), tr("Список задач"));
-    m_ribbonBar->page(0)->group(2)->addAction(QIcon(tr("://res/Log.svg")), tr("Протокол работы"));
+    m_ribbonBar->page(0)->group(2)->addAction(m_panelAction1);
+    m_ribbonBar->page(0)->group(2)->addAction(m_panelAction2);
     m_ribbonBar->setFont(QFont("Calibri", 9));
     setRibbonBar(m_ribbonBar);
 
     connect(m_ribbonBar->page(0)->group(1)->actions().at(0), SIGNAL(triggered()), this, SLOT(on_setingsButtonClicked()));
-    connect(m_ribbonBar->page(0)->group(2)->actions().at(0), SIGNAL(triggered()), this, SLOT(on_taskListButtonClicked()));
-    connect(m_ribbonBar->page(0)->group(2)->actions().at(1), SIGNAL(triggered()), this, SLOT(on_logButtonClicked()));
+    connect(m_panelAction1, SIGNAL(triggered()), this, SLOT(on_taskListButtonClicked()));
+    connect(m_panelAction2, SIGNAL(triggered()), this, SLOT(on_logButtonClicked()));
 
     const QStringList headers1({ tr("Название базы"), tr("Регион"), tr("Дата обновления"), tr("Размер") });
     QFile file1("://res/primerDB.txt");
@@ -116,14 +97,19 @@ MainWindow::MainWindow(QWidget *parent)
     m_panel_1->setIcon(QIcon(tr("://res/TaskList.svg")));
 //    m_panel_1->resize(m_panel_1->width(), height() / 2);
 //    m_panel_1->setMinimumHeight(m_panel_1->height() / 5);
-    GridDialog *dlg = new GridDialog(m_grid1);
+    m_gridDlg = new GridDialog(m_grid1);
     m_panel_1->setObjectName("_qtn_widget_panel_id_1");
-    m_panel_1->setWidget(dlg);
+    m_panel_1->setWidget(m_gridDlg);
     m_panel_2 = m_manager->addDockPanel("Протокол работы", Qtitan::InsideDockPanelArea, m_panel_1);
     m_panel_2->setObjectName("_qtn_widget_panel_id_2");
     m_panel_2->setIcon(QIcon(tr("://res/Log.svg")));
 //    m_panel_2->setMinimumHeight(m_panel_1->height() / 5);
     m_panel_2->setWidget(m_grid2);
+
+    connect(m_manager, SIGNAL(aboutToClose(DockPanelBase*, bool&)), this, SLOT(aboutToClosePanel(DockPanelBase*, bool&)));
+    connect(m_manager, SIGNAL(aboutToShow(DockPanelBase*, bool&)), this, SLOT(aboutToShowPanel(DockPanelBase*, bool&)));
+
+
     setWindowState(Qt::WindowMaximized);
 }
 
@@ -140,11 +126,78 @@ void MainWindow::on_setingsButtonClicked()
 
 void MainWindow::on_taskListButtonClicked()
 {
-//    m_panel_1->closePanel();
+    if (!m_isPanelClosed1)
+    {
+        m_panel_1->closePanel();
+    }
+    else
+    {
+        m_manager->showDockPanel(m_panel_1);
+        m_isPanelClosed1 = false;
+    }
 }
 
 void MainWindow::on_logButtonClicked()
 {
-//    m_manager->showDockPanel(m_panel_1);
+    if (!m_isPanelClosed2)
+    {
+        m_panel_2->closePanel();
+    }
+    else
+    {
+        m_manager->showDockPanel(m_panel_2);
+    }
 }
 
+void MainWindow::aboutToClosePanel(DockPanelBase *panel, bool &handled)
+{
+    if (panel == m_panel_1)
+    {
+        m_panelAction1->setChecked(false);
+        m_isPanelClosed1 = true;
+    }
+    else if (panel == m_panel_2)
+    {
+        m_panelAction2->setChecked(false);
+        m_isPanelClosed2 = true;
+    }
+    handled = true;
+}
+
+void MainWindow::aboutToShowPanel(DockPanelBase *panel, bool &handled)
+{
+    if (panel == m_panel_1)
+    {
+        m_panelAction1->setChecked(true);
+        m_isPanelClosed1 = false;
+        m_gridDlg->show();
+    }
+    else if (panel == m_panel_2)
+    {
+        m_panelAction2->setChecked(true);
+        m_isPanelClosed2 = false;
+    }
+    handled = true;
+}
+
+GridDialog::GridDialog(Grid *grid) {
+    QSize buttonSize = QSize(30, 30);
+    m_stopButton = new QPushButton(QIcon(tr("://res/Stop.svg")), "");
+    m_stopButton->setEnabled(false);
+    m_stopButton->setIconSize(buttonSize);
+    m_removeButton = new QPushButton(QIcon(tr("://res/Remove.svg")), "");
+    m_removeButton->setEnabled(false);
+    m_removeButton->setIconSize(buttonSize);
+    m_changeButton = new QPushButton(QIcon(tr("://res/Program.svg")), "");
+    m_changeButton->setEnabled(false);
+    m_changeButton->setIconSize(buttonSize);
+    QVBoxLayout *vlayout = new QVBoxLayout(this);
+    QHBoxLayout *hlayout = new QHBoxLayout();
+    vlayout->addLayout(hlayout);
+    vlayout->addWidget(grid);
+    QSpacerItem *spacer = new QSpacerItem(buttonSize.width(), buttonSize.height(), QSizePolicy::Expanding, QSizePolicy::Minimum);
+    hlayout->addWidget(m_stopButton);
+    hlayout->addWidget(m_removeButton);
+    hlayout->addWidget(m_changeButton);
+    hlayout->addItem(spacer);
+}

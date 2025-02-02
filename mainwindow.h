@@ -13,6 +13,15 @@
 #include <QMainWindow>
 #include <QFile>
 
+class GridDialog : public QDialog
+{
+public:
+    GridDialog(Grid *grid);
+    QPushButton* m_stopButton;
+    QPushButton* m_removeButton;
+    QPushButton* m_changeButton;
+};
+
 class MainWindow : public RibbonMainWindow
 {
     Q_OBJECT
@@ -33,12 +42,22 @@ private:
     Qtitan::TreeGrid* m_treeGrid2;
     Qtitan::Grid* m_grid1;
     Qtitan::Grid* m_grid2;
+    GridDialog* m_gridDlg;
+
+    QAction *m_panelAction1;
+    QAction *m_panelAction2;
+
+    bool m_isPanelClosed1 = false;
+    bool m_isPanelClosed2 = false;
 
 public slots:
 
     void on_setingsButtonClicked();
     void on_taskListButtonClicked();
     void on_logButtonClicked();
+
+    void aboutToClosePanel(DockPanelBase* panel, bool& handled);
+    void aboutToShowPanel(DockPanelBase* panel, bool& handled);
 
 };
 #endif // MAINWINDOW_H
