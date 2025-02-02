@@ -43,5 +43,6 @@ macx {
 }
 
 RESOURCES += \
-    UpdateWizardClone.qrc \
-    treemodel.qrc
+    UpdateWizardClone.qrc
+
+win32:RC_ICONS += res/UpdateWIZARD.ico

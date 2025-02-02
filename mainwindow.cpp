@@ -1,10 +1,10 @@
 #include <QSizePolicy>
 #include <QSpacerItem>
+#include <QMessageBox>
 
 #include "treemodel.h"
 #include "mainwindow.h"
 #include "settingsdialog.h"
-
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -39,6 +39,8 @@ MainWindow::MainWindow(QWidget *parent)
     m_ribbonBar->setFont(QFont("Calibri", 9));
     setRibbonBar(m_ribbonBar);
 
+    connect(m_ribbonBar->page(0)->group(0)->actions().at(0), SIGNAL(triggered()), this, SLOT(on_updateButtonClicked()));
+    connect(m_ribbonBar->page(0)->group(0)->actions().at(1), SIGNAL(triggered()), this, SLOT(on_downloadButtonClicked()));
     connect(m_ribbonBar->page(0)->group(1)->actions().at(0), SIGNAL(triggered()), this, SLOT(on_setingsButtonClicked()));
     connect(m_panelAction1, SIGNAL(triggered()), this, SLOT(on_taskListButtonClicked()));
     connect(m_panelAction2, SIGNAL(triggered()), this, SLOT(on_logButtonClicked()));
@@ -115,6 +117,23 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+}
+
+void MainWindow::showMessageNotRealised()
+{
+    QMessageBox messageBox(QMessageBox::Information, windowTitle(), QStringLiteral("Warning"), QMessageBox::Ok, this);
+    messageBox.setInformativeText(QStringLiteral("Не реализовано"));
+    messageBox.exec();
+}
+
+void MainWindow::on_updateButtonClicked()
+{
+    showMessageNotRealised();
+}
+
+void MainWindow::on_downloadButtonClicked()
+{
+    showMessageNotRealised();
 }
 
 void MainWindow::on_setingsButtonClicked()

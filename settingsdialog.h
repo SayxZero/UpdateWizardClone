@@ -39,6 +39,7 @@ public:
 
     QPushButton* okButton;
     QPushButton* cancelButton;
+
 };
 
 #endif // SETTINGSDIALOG_H

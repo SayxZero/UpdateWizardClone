@@ -50,8 +50,12 @@ private:
     bool m_isPanelClosed1 = false;
     bool m_isPanelClosed2 = false;
 
+    void showMessageNotRealised();
+
 public slots:
 
+    void on_updateButtonClicked();
+    void on_downloadButtonClicked();
     void on_setingsButtonClicked();
     void on_taskListButtonClicked();
     void on_logButtonClicked();

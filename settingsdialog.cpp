@@ -200,6 +200,10 @@ SettingsDialog::SettingsDialog()
     tabWidget->addTab(dialog, tr("Настройки подключения"));
 
     setLayout(mainLayout);
+
+    connect(okButton, SIGNAL(clicked()), this, SLOT(accept()));
+    connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
+
 }
 
 SettingsDialog::~SettingsDialog()
