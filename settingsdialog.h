@@ -11,12 +11,15 @@
 
 class SettingsDialog : public QDialog
 {
-public:
-    SettingsDialog();
 
+    Q_OBJECT
+
+public:
+
+    SettingsDialog();
     ~SettingsDialog();
 
-    QTabWidget* tabWidget;
+    QTabWidget* m_tabWidget;
 
     QLineEdit* m_browseLineEdit;
     QPushButton* m_browseButton;
@@ -27,18 +30,29 @@ public:
     QPushButton* m_getButton;
     QTableView* m_numbersTableView;
 
-    QCheckBox* proxyCheckBox;
-    QCheckBox* systemProxyCheckBox;
-    QPushButton* importButton;
-    QPushButton* coonectionCheckButton;
+    QCheckBox* m_proxyCheckBox;
+    QCheckBox* m_systemProxyCheckBox;
+    QPushButton* m_importButton;
+    QPushButton* m_connectionCheckButton;
 
-    QLineEdit* adressLineEdit;
-    QLineEdit* usernameLineEdit;
-    QLineEdit* passwordLineEdit;
-    QLineEdit* portLineEdit;
+    QLineEdit* m_adressLineEdit;
+    QLineEdit* m_usernameLineEdit;
+    QLineEdit* m_passwordLineEdit;
+    QLineEdit* m_portLineEdit;
 
-    QPushButton* okButton;
-    QPushButton* cancelButton;
+    QPushButton* m_okButton;
+    QPushButton* m_cancelButton;
+
+    void showMessageNotRealised();
+
+public slots:
+
+    void on_browseButtonClicked();
+    void on_addButtonClicked();
+    void on_removeButtonClicked();
+    void on_getButtonClicked();
+    void on_importButtonClicked();
+    void on_connectionButtonClicked();
 
 };
 

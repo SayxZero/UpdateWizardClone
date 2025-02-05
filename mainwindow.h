@@ -27,28 +27,28 @@ class MainWindow : public RibbonMainWindow
     Q_OBJECT
 
 public:
+
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
 private:
 
     DockPanelManager* m_manager;
-    RibbonBar* m_ribbonBar;
-    DockWidgetPanel* m_panel_1;
-    DockWidgetPanel* m_panel_2;
-    QPushButton* m_button;
-    QTabWidget* m_tabWidget;
-    Qtitan::TreeGrid* m_treeGrid1;
-    Qtitan::TreeGrid* m_treeGrid2;
-    Qtitan::Grid* m_grid1;
-    Qtitan::Grid* m_grid2;
-    GridDialog* m_gridDlg;
+    RibbonBar* m_mainMenuBar;
+    DockWidgetPanel* m_taskListPanel;
+    DockWidgetPanel* m_workProtocolPanel;
+    QTabWidget* m_mainWorkspaceTabWidget;
+    Qtitan::TreeGrid* m_databaseTreeGrid;
+    Qtitan::TreeGrid* m_productTreeGrid;
+    Qtitan::Grid* m_taskListGrid;
+    Qtitan::Grid* m_workProtocolGrid;
+    GridDialog* m_taskListContainerDialog;
 
-    QAction *m_panelAction1;
-    QAction *m_panelAction2;
+    QAction *m_taskListPanelAction;
+    QAction *m_workProtocolPanelAction;
 
-    bool m_isPanelClosed1 = false;
-    bool m_isPanelClosed2 = false;
+    bool m_isTaskListPanelClosed = false;
+    bool m_isWorkProtocolPanelClosed = false;
 
     void showMessageNotRealised();
 

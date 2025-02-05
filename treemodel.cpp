@@ -240,7 +240,7 @@ bool TreeModel::moveRows(const QModelIndex& sourceParent, int sourceRow, int cou
 }
 
 bool TreeModel::canDropMimeData(const QMimeData* data, Qt::DropAction action,
-    int row, int column, const QModelIndex& parent) const
+    int row, int column, [[maybe_unused]] const QModelIndex& parent) const
 {
     if (data == nullptr || action != Qt::MoveAction)
         return false;

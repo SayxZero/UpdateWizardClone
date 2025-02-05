@@ -1,7 +1,7 @@
 #include "settingsdialog.h"
 #include <QSpacerItem>
 #include <QFrame>
-
+#include <QMessageBox>
 
 #include "QVBoxLayout"
 
@@ -14,19 +14,19 @@ SettingsDialog::SettingsDialog()
 
     QVBoxLayout* mainLayout = new QVBoxLayout();
 
-    tabWidget = new QTabWidget();
+    m_tabWidget = new QTabWidget();
 
-    okButton = new QPushButton(tr("ОК"));
-    cancelButton = new QPushButton(tr("Отмена"));
+    m_okButton = new QPushButton(tr("ОК"));
+    m_cancelButton = new QPushButton(tr("Отмена"));
 
     QSpacerItem *spacer0 = new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
     QHBoxLayout* mainButtonLayout = new QHBoxLayout();
     mainButtonLayout->addItem(spacer0);
-    mainButtonLayout->addWidget(okButton);
-    mainButtonLayout->addWidget(cancelButton);
+    mainButtonLayout->addWidget(m_okButton);
+    mainButtonLayout->addWidget(m_cancelButton);
 
-    mainLayout->addWidget(tabWidget);
+    mainLayout->addWidget(m_tabWidget);
     mainLayout->addLayout(mainButtonLayout);
 
     QSize buttonSize = QSize(30, 30);
@@ -69,10 +69,7 @@ SettingsDialog::SettingsDialog()
     QFrame *numbersFrame = new QFrame();
     numbersFrame->setFrameStyle(QFrame::StyledPanel);
 
-//    QLabel *numbersLabel = new QLabel(tr("Серийные номера"));
-
     QVBoxLayout *numbersLayout = new QVBoxLayout();
-//    numbersLayout->addWidget(numbersLabel);
     numbersLayout->addLayout(buttonsLayout);
     numbersLayout->addWidget(m_numbersTableView);
     numbersFrame->setLayout(numbersLayout);
@@ -82,17 +79,17 @@ SettingsDialog::SettingsDialog()
     QDialog *dialog = new QDialog();
     dialog->setLayout(firstLayout);
 
-    tabWidget->addTab(dialog, tr("Серийные номера и загрузка"));
+    m_tabWidget->addTab(dialog, tr("Серийные номера и загрузка"));
 
     QVBoxLayout* secondLayout = new QVBoxLayout();
 
     QSpacerItem *importSpacer = new QSpacerItem(buttonSize.width(), buttonSize.height(), QSizePolicy::Expanding, QSizePolicy::Minimum);
-    importButton = new QPushButton(tr("Импорт системных настроек"));
-    importButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    importButton->resize(10, 200);
+    m_importButton = new QPushButton(tr("Импорт системных настроек"));
+    m_importButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    m_importButton->resize(10, 200);
     QHBoxLayout* importLayout = new QHBoxLayout();
     importLayout->addItem(importSpacer);
-    importLayout->addWidget(importButton);
+    importLayout->addWidget(m_importButton);
     secondLayout->addLayout(importLayout);
 
     QVBoxLayout* checkboxLayout = new QVBoxLayout();
@@ -101,16 +98,16 @@ SettingsDialog::SettingsDialog()
     QSpacerItem *coonectionCheckSpacer = new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding);
     QSpacerItem *checkboxSpacer = new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Preferred);
 
-    proxyCheckBox = new QCheckBox(tr("Использовать прокси-сервер"));
-    systemProxyCheckBox = new QCheckBox(tr("Использовать системные настройки прокси-сервера"));
-    coonectionCheckButton = new QPushButton(tr("Проверка соединения"));
-    coonectionCheckButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    coonectionCheckButton->resize(10, 200);
+    m_proxyCheckBox = new QCheckBox(tr("Использовать прокси-сервер"));
+    m_systemProxyCheckBox = new QCheckBox(tr("Использовать системные настройки прокси-сервера"));
+    m_connectionCheckButton = new QPushButton(tr("Проверка соединения"));
+    m_connectionCheckButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    m_connectionCheckButton->resize(10, 200);
 
     checkboxLayout->addItem(checkboxSpacer);
-    checkboxLayout->addWidget(proxyCheckBox);
-    checkboxLayout->addWidget(systemProxyCheckBox);
-    coonectionCheckLayout->addWidget(coonectionCheckButton);
+    checkboxLayout->addWidget(m_proxyCheckBox);
+    checkboxLayout->addWidget(m_systemProxyCheckBox);
+    coonectionCheckLayout->addWidget(m_connectionCheckButton);
     coonectionCheckLayout->addItem(coonectionCheckSpacer);
 
     checkLayout->addLayout(checkboxLayout);
@@ -121,10 +118,10 @@ SettingsDialog::SettingsDialog()
     proxyFrame->setFrameStyle(QFrame::StyledPanel);
     secondLayout->addWidget(proxyFrame);
 
-    adressLineEdit = new QLineEdit();
-    usernameLineEdit = new QLineEdit();
-    passwordLineEdit = new QLineEdit();
-    portLineEdit = new QLineEdit();
+    m_adressLineEdit = new QLineEdit();
+    m_usernameLineEdit = new QLineEdit();
+    m_passwordLineEdit = new QLineEdit();
+    m_portLineEdit = new QLineEdit();
 
     QLabel *adressLabel = new QLabel(tr("Адрес сервера:"));
     QLabel *usernameLabel = new QLabel(tr("Имя пользователя:"));
@@ -139,7 +136,6 @@ SettingsDialog::SettingsDialog()
     QSpacerItem *portUnderSpacer = new QSpacerItem(10, 10, QSizePolicy::Fixed, QSizePolicy::Expanding);
     QSpacerItem *proxyUnderSpacer = new QSpacerItem(10, 10, QSizePolicy::Fixed, QSizePolicy::Expanding);
     QSpacerItem *proxyUpperSpacer = new QSpacerItem(10, 10, QSizePolicy::Fixed, QSizePolicy::Expanding);
-
 
     QHBoxLayout* adressLayout = new QHBoxLayout();
     adressLayout->addItem(adressSpacer);
@@ -160,20 +156,20 @@ SettingsDialog::SettingsDialog()
     proxyLayout0->addLayout(passwordLayout);
 
     QVBoxLayout* proxyLayout1 = new QVBoxLayout();
-    proxyLayout1->addWidget(usernameLineEdit);
-    proxyLayout1->addWidget(passwordLineEdit);
+    proxyLayout1->addWidget(m_usernameLineEdit);
+    proxyLayout1->addWidget(m_passwordLineEdit);
 
     QHBoxLayout* proxyLayout2 = new QHBoxLayout();
     proxyLayout2->addLayout(proxyLayout1);
     proxyLayout2->addItem(pwAndUnSpacer);
 
     QVBoxLayout* proxyLayout3 = new QVBoxLayout();
-    proxyLayout3->addWidget(adressLineEdit);
+    proxyLayout3->addWidget(m_adressLineEdit);
     proxyLayout3->addLayout(proxyLayout2);
 
     QHBoxLayout* proxyLayout4 = new QHBoxLayout();
     proxyLayout4->addLayout(portLayout);
-    proxyLayout4->addWidget(portLineEdit);
+    proxyLayout4->addWidget(m_portLineEdit);
 
     QVBoxLayout* proxyLayout5 = new QVBoxLayout();
     proxyLayout5->addLayout(proxyLayout4);
@@ -197,16 +193,58 @@ SettingsDialog::SettingsDialog()
     dialog = new QDialog();
     dialog->setLayout(secondLayout);
 
-    tabWidget->addTab(dialog, tr("Настройки подключения"));
+    m_tabWidget->addTab(dialog, tr("Настройки подключения"));
 
     setLayout(mainLayout);
 
-    connect(okButton, SIGNAL(clicked()), this, SLOT(accept()));
-    connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
+    connect(m_okButton, SIGNAL(clicked()), this, SLOT(accept()));
+    connect(m_cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
+    connect(m_browseButton, SIGNAL(clicked()), this, SLOT(on_browseButtonClicked()));
+    connect(m_addButton, SIGNAL(clicked()), this, SLOT(on_addButtonClicked()));
+    connect(m_removeButton, SIGNAL(clicked()), this, SLOT(on_removeButtonClicked()));
+    connect(m_getButton, SIGNAL(clicked()), this, SLOT(on_getButtonClicked()));
+    connect(m_importButton, SIGNAL(clicked()), this, SLOT(on_importButtonClicked()));
+    connect(m_connectionCheckButton, SIGNAL(clicked()), this, SLOT(on_connectionButtonClicked()));
 
 }
 
 SettingsDialog::~SettingsDialog()
 {
+}
 
+void SettingsDialog::showMessageNotRealised()
+{
+    QMessageBox notRealisedMessageBox(QMessageBox::Information, windowTitle(), QStringLiteral("Warning"), QMessageBox::Ok, this);
+    notRealisedMessageBox.setInformativeText(QStringLiteral("Не реализовано"));
+    notRealisedMessageBox.exec();
+}
+
+void SettingsDialog::on_browseButtonClicked()
+{
+    showMessageNotRealised();
+}
+
+void SettingsDialog::on_addButtonClicked()
+{
+    showMessageNotRealised();
+}
+
+void SettingsDialog::on_removeButtonClicked()
+{
+    showMessageNotRealised();
+}
+
+void SettingsDialog::on_getButtonClicked()
+{
+    showMessageNotRealised();
+}
+
+void SettingsDialog::on_importButtonClicked()
+{
+    showMessageNotRealised();
+}
+
+void SettingsDialog::on_connectionButtonClicked()
+{
+    showMessageNotRealised();
 }

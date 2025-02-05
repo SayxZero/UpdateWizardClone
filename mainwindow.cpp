@@ -9,8 +9,8 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : RibbonMainWindow(parent)
-    , m_panel_1(Q_NULL)
-    , m_panel_2(Q_NULL)
+    , m_taskListPanel(Q_NULL)
+    , m_workProtocolPanel(Q_NULL)
 {
     const QRect availableGeometry = screen()->availableGeometry();
     resize(availableGeometry.width() / 4 * 3, availableGeometry.height() / 4 * 3);
@@ -18,99 +18,95 @@ MainWindow::MainWindow(QWidget *parent)
     setMinimumHeight(availableGeometry.height() / 3);
     setMinimumWidth(availableGeometry.width() / 5);
 
-    m_panelAction1 = new QAction(QIcon(tr("://res/TaskList.svg")), tr("Список задач"));
-    m_panelAction1->setCheckable(true);
-    m_panelAction1->setChecked(true);
+    m_taskListPanelAction = new QAction(QIcon(tr("://res/TaskList.svg")), tr("Список задач"));
+    m_taskListPanelAction->setCheckable(true);
+    m_taskListPanelAction->setChecked(true);
 
-    m_panelAction2 = new QAction(QIcon(tr("://res/Log.svg")), tr("Протокол работы"));
-    m_panelAction2->setCheckable(true);
-    m_panelAction2->setChecked(true);
+    m_workProtocolPanelAction = new QAction(QIcon(tr("://res/Log.svg")), tr("Протокол работы"));
+    m_workProtocolPanelAction->setCheckable(true);
+    m_workProtocolPanelAction->setChecked(true);
 
-    m_ribbonBar = new RibbonBar(this);
-    m_ribbonBar->addPage(QStringLiteral("Главная"));
-    m_ribbonBar->page(0)->addGroup(tr("Данные"));
-    m_ribbonBar->page(0)->group(0)->addAction(QIcon(tr(":/res/Update.svg")), tr("Обновить информацию"));
-    m_ribbonBar->page(0)->group(0)->addAction(QIcon(tr("://res/FileDownloading.svg")), tr("Скачать"));
-    m_ribbonBar->page(0)->addGroup(tr("Настройки"));
-    m_ribbonBar->page(0)->group(1)->addAction(QIcon(tr("://res/Settings.svg")), tr("Настройки"));
-    m_ribbonBar->page(0)->addGroup(tr("Вид"));
-    m_ribbonBar->page(0)->group(2)->addAction(m_panelAction1);
-    m_ribbonBar->page(0)->group(2)->addAction(m_panelAction2);
-    m_ribbonBar->setFont(QFont("Calibri", 9));
-    setRibbonBar(m_ribbonBar);
+    m_mainMenuBar = new RibbonBar(this);
+    m_mainMenuBar->addPage(QStringLiteral("Главная"));
+    m_mainMenuBar->page(0)->addGroup(tr("Данные"));
+    m_mainMenuBar->page(0)->group(0)->addAction(QIcon(tr(":/res/Update.svg")), tr("Обновить информацию"));
+    m_mainMenuBar->page(0)->group(0)->addAction(QIcon(tr("://res/FileDownloading.svg")), tr("Скачать"));
+    m_mainMenuBar->page(0)->addGroup(tr("Настройки"));
+    m_mainMenuBar->page(0)->group(1)->addAction(QIcon(tr("://res/Settings.svg")), tr("Настройки"));
+    m_mainMenuBar->page(0)->addGroup(tr("Вид"));
+    m_mainMenuBar->page(0)->group(2)->addAction(m_taskListPanelAction);
+    m_mainMenuBar->page(0)->group(2)->addAction(m_workProtocolPanelAction);
+    m_mainMenuBar->setFont(QFont("Calibri", 9));
+    setRibbonBar(m_mainMenuBar);
 
-    connect(m_ribbonBar->page(0)->group(0)->actions().at(0), SIGNAL(triggered()), this, SLOT(on_updateButtonClicked()));
-    connect(m_ribbonBar->page(0)->group(0)->actions().at(1), SIGNAL(triggered()), this, SLOT(on_downloadButtonClicked()));
-    connect(m_ribbonBar->page(0)->group(1)->actions().at(0), SIGNAL(triggered()), this, SLOT(on_setingsButtonClicked()));
-    connect(m_panelAction1, SIGNAL(triggered()), this, SLOT(on_taskListButtonClicked()));
-    connect(m_panelAction2, SIGNAL(triggered()), this, SLOT(on_logButtonClicked()));
+    connect(m_mainMenuBar->page(0)->group(0)->actions().at(0), SIGNAL(triggered()), this, SLOT(on_updateButtonClicked()));
+    connect(m_mainMenuBar->page(0)->group(0)->actions().at(1), SIGNAL(triggered()), this, SLOT(on_downloadButtonClicked()));
+    connect(m_mainMenuBar->page(0)->group(1)->actions().at(0), SIGNAL(triggered()), this, SLOT(on_setingsButtonClicked()));
+    connect(m_taskListPanelAction, SIGNAL(triggered()), this, SLOT(on_taskListButtonClicked()));
+    connect(m_workProtocolPanelAction, SIGNAL(triggered()), this, SLOT(on_logButtonClicked()));
 
     const QStringList headers1({ tr("Название базы"), tr("Регион"), tr("Дата обновления"), tr("Размер") });
     QFile file1("://res/primerDB.txt");
     file1.open(QIODevice::ReadOnly);
-    TreeModel* model1 = new TreeModel(headers1, file1.readAll());
+    TreeModel* databaseTreeGridModel = new TreeModel(headers1, file1.readAll());
     file1.close();
 
     const QStringList headers2({ tr("Наименование"), tr("Описание"), tr("Размер"), tr("Серийный номер"), tr("Организация") });
     QFile file2("://res/primerProgram.txt");
     file2.open(QIODevice::ReadOnly);
-    TreeModel* model2 = new TreeModel(headers2, file2.readAll());
+    TreeModel* productTreeGridModel = new TreeModel(headers2, file2.readAll());
     file2.close();
 
-    m_tabWidget = new QTabWidget();
+    m_mainWorkspaceTabWidget = new QTabWidget();
 
-    m_treeGrid1 = new Qtitan::TreeGrid();
-    m_treeGrid1->setViewType(Qtitan::TreeGrid::TreeView);
-    Qtitan::GridTreeView* treeview1 = m_treeGrid1->view<Qtitan::GridTreeView>();
-    treeview1->beginUpdate();
-    treeview1->options().setGestureEnabled(true);
-    treeview1->options().setShowFocusDecoration(true);
-    treeview1->setModel(model1);
-    treeview1->endUpdate();
-    treeview1->bestFit(Qtitan::FitToHeaderAndContent);
-    treeview1->expandToLevel(3);
-    m_tabWidget->addTab(m_treeGrid1, QIcon(tr("://res/DB.svg")), tr("Базы данных"));
+    m_databaseTreeGrid = new Qtitan::TreeGrid();
+    m_databaseTreeGrid->setViewType(Qtitan::TreeGrid::TreeView);
+    Qtitan::GridTreeView* databaseTreeGridView = m_databaseTreeGrid->view<Qtitan::GridTreeView>();
+    databaseTreeGridView->beginUpdate();
+    databaseTreeGridView->options().setGestureEnabled(true);
+    databaseTreeGridView->options().setShowFocusDecoration(true);
+    databaseTreeGridView->setModel(databaseTreeGridModel);
+    databaseTreeGridView->endUpdate();
+    databaseTreeGridView->bestFit(Qtitan::FitToHeaderAndContent);
+    databaseTreeGridView->expandToLevel(3);
+    m_mainWorkspaceTabWidget->addTab(m_databaseTreeGrid, QIcon(tr("://res/DB.svg")), tr("Базы данных"));
 
-    m_treeGrid2 = new Qtitan::TreeGrid();
-    m_treeGrid2->setViewType(Qtitan::TreeGrid::TreeView);
-    Qtitan::GridTreeView* treeview2 = m_treeGrid2->view<Qtitan::GridTreeView>();
-    treeview2->beginUpdate();
-    treeview2->options().setGestureEnabled(true);
-    treeview2->options().setShowFocusDecoration(true);
-    treeview2->setModel(model2);
-    treeview2->endUpdate();
-    treeview2->bestFit(Qtitan::FitToHeaderAndContent);
-    treeview2->expandToLevel(3);
-    m_tabWidget->addTab(m_treeGrid2, QIcon(tr("://res/Program.svg")), tr("Программные продукты"));
+    m_productTreeGrid = new Qtitan::TreeGrid();
+    m_productTreeGrid->setViewType(Qtitan::TreeGrid::TreeView);
+    Qtitan::GridTreeView* productTreeGridView = m_productTreeGrid->view<Qtitan::GridTreeView>();
+    productTreeGridView->beginUpdate();
+    productTreeGridView->options().setGestureEnabled(true);
+    productTreeGridView->options().setShowFocusDecoration(true);
+    productTreeGridView->setModel(productTreeGridModel);
+    productTreeGridView->endUpdate();
+    productTreeGridView->bestFit(Qtitan::FitToHeaderAndContent);
+    productTreeGridView->expandToLevel(3);
+    m_mainWorkspaceTabWidget->addTab(m_productTreeGrid, QIcon(tr("://res/Program.svg")), tr("Программные продукты"));
 
-    m_grid1 = new Qtitan::Grid();
-    m_grid1->setViewType(Qtitan::Grid::TableView);
-    Qtitan::GridTableView* tableview1 = m_grid1->view<Qtitan::GridTableView>();
-    tableview1->options().setCellButtonAutoRaise(true);
+    m_taskListGrid = new Qtitan::Grid();
+    m_taskListGrid->setViewType(Qtitan::Grid::TableView);
+    Qtitan::GridTableView* taskListGridTableView = m_taskListGrid->view<Qtitan::GridTableView>();
+    taskListGridTableView->options().setCellButtonAutoRaise(true);
 
-    m_grid2 = new Qtitan::Grid();
-    m_grid2->setViewType(Qtitan::Grid::TableView);
-    Qtitan::GridTableView* tableview2 = m_grid2->view<Qtitan::GridTableView>();
-    tableview2->options().setCellButtonAutoRaise(true);
+    m_workProtocolGrid = new Qtitan::Grid();
+    m_workProtocolGrid->setViewType(Qtitan::Grid::TableView);
+    Qtitan::GridTableView* workProtocolTableView2 = m_workProtocolGrid->view<Qtitan::GridTableView>();
+    workProtocolTableView2->options().setCellButtonAutoRaise(true);
 
-    setCentralWidget(m_tabWidget);
+    setCentralWidget(m_mainWorkspaceTabWidget);
     m_manager = new DockPanelManager(this);
-    m_panel_1 = m_manager->addDockPanel("Список задач", Qtitan::BottomDockPanelArea);
-    m_panel_1->setIcon(QIcon(tr("://res/TaskList.svg")));
-//    m_panel_1->resize(m_panel_1->width(), height() / 2);
-//    m_panel_1->setMinimumHeight(m_panel_1->height() / 5);
-    m_gridDlg = new GridDialog(m_grid1);
-    m_panel_1->setObjectName("_qtn_widget_panel_id_1");
-    m_panel_1->setWidget(m_gridDlg);
-    m_panel_2 = m_manager->addDockPanel("Протокол работы", Qtitan::InsideDockPanelArea, m_panel_1);
-    m_panel_2->setObjectName("_qtn_widget_panel_id_2");
-    m_panel_2->setIcon(QIcon(tr("://res/Log.svg")));
-//    m_panel_2->setMinimumHeight(m_panel_1->height() / 5);
-    m_panel_2->setWidget(m_grid2);
+    m_taskListPanel = m_manager->addDockPanel("Список задач", Qtitan::BottomDockPanelArea);
+    m_taskListPanel->setIcon(QIcon(tr("://res/TaskList.svg")));
+    m_taskListContainerDialog = new GridDialog(m_taskListGrid);
+    m_taskListPanel->setObjectName("_qtn_widget_panel_id_1");
+    m_taskListPanel->setWidget(m_taskListContainerDialog);
+    m_workProtocolPanel = m_manager->addDockPanel("Протокол работы", Qtitan::InsideDockPanelArea, m_taskListPanel);
+    m_workProtocolPanel->setObjectName("_qtn_widget_panel_id_2");
+    m_workProtocolPanel->setIcon(QIcon(tr("://res/Log.svg")));
+    m_workProtocolPanel->setWidget(m_workProtocolGrid);
 
     connect(m_manager, SIGNAL(aboutToClose(DockPanelBase*, bool&)), this, SLOT(aboutToClosePanel(DockPanelBase*, bool&)));
     connect(m_manager, SIGNAL(aboutToShow(DockPanelBase*, bool&)), this, SLOT(aboutToShowPanel(DockPanelBase*, bool&)));
-
 
     setWindowState(Qt::WindowMaximized);
 }
@@ -121,9 +117,9 @@ MainWindow::~MainWindow()
 
 void MainWindow::showMessageNotRealised()
 {
-    QMessageBox messageBox(QMessageBox::Information, windowTitle(), QStringLiteral("Warning"), QMessageBox::Ok, this);
-    messageBox.setInformativeText(QStringLiteral("Не реализовано"));
-    messageBox.exec();
+    QMessageBox notRealisedMessageBox(QMessageBox::Information, windowTitle(), QStringLiteral("Warning"), QMessageBox::Ok, this);
+    notRealisedMessageBox.setInformativeText(QStringLiteral("Не реализовано"));
+    notRealisedMessageBox.exec();
 }
 
 void MainWindow::on_updateButtonClicked()
@@ -138,68 +134,70 @@ void MainWindow::on_downloadButtonClicked()
 
 void MainWindow::on_setingsButtonClicked()
 {
-    SettingsDialog* dlg = new SettingsDialog();
-    dlg->setModal(true);
-    dlg->exec();
+    SettingsDialog* settingsDialog = new SettingsDialog();
+    settingsDialog->setModal(true);
+    settingsDialog->exec();
+    delete settingsDialog;
 }
 
 void MainWindow::on_taskListButtonClicked()
 {
-    if (!m_isPanelClosed1)
+    if (!m_isTaskListPanelClosed)
     {
-        m_panel_1->closePanel();
+        m_taskListPanel->closePanel();
     }
     else
     {
-        m_manager->showDockPanel(m_panel_1);
-        m_isPanelClosed1 = false;
+        m_manager->showDockPanel(m_taskListPanel);
+        m_isTaskListPanelClosed = false;
     }
 }
 
 void MainWindow::on_logButtonClicked()
 {
-    if (!m_isPanelClosed2)
+    if (!m_isWorkProtocolPanelClosed)
     {
-        m_panel_2->closePanel();
+        m_workProtocolPanel->closePanel();
     }
     else
     {
-        m_manager->showDockPanel(m_panel_2);
+        m_manager->showDockPanel(m_workProtocolPanel);
     }
 }
 
 void MainWindow::aboutToClosePanel(DockPanelBase *panel, bool &handled)
 {
-    if (panel == m_panel_1)
+    if (panel == m_taskListPanel)
     {
-        m_panelAction1->setChecked(false);
-        m_isPanelClosed1 = true;
+        m_taskListPanelAction->setChecked(false);
+        m_isTaskListPanelClosed = true;
     }
-    else if (panel == m_panel_2)
+    else if (panel == m_workProtocolPanel)
     {
-        m_panelAction2->setChecked(false);
-        m_isPanelClosed2 = true;
+        m_workProtocolPanelAction->setChecked(false);
+        m_isWorkProtocolPanelClosed = true;
     }
     handled = true;
 }
 
 void MainWindow::aboutToShowPanel(DockPanelBase *panel, bool &handled)
 {
-    if (panel == m_panel_1)
+    if (panel == m_taskListPanel)
     {
-        m_panelAction1->setChecked(true);
-        m_isPanelClosed1 = false;
-        m_gridDlg->show();
+        m_taskListPanelAction->setChecked(true);
+        m_isTaskListPanelClosed = false;
+        m_taskListContainerDialog->show();
     }
-    else if (panel == m_panel_2)
+    else if (panel == m_workProtocolPanel)
     {
-        m_panelAction2->setChecked(true);
-        m_isPanelClosed2 = false;
+        m_workProtocolPanelAction->setChecked(true);
+        m_isWorkProtocolPanelClosed = false;
     }
     handled = true;
 }
 
-GridDialog::GridDialog(Grid *grid) {
+GridDialog::GridDialog(Grid *grid)
+{
     QSize buttonSize = QSize(30, 30);
     m_stopButton = new QPushButton(QIcon(tr("://res/Stop.svg")), "");
     m_stopButton->setEnabled(false);
