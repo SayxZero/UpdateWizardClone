@@ -1,23 +1,9 @@
 <RCC>
     <qresource prefix="/">
-        <file>res/about.png</file>
-        <file>res/favicon.ico</file>
-        <file>res/question.png</file>
-        <file>res/resource_view.ico</file>
-        <file>res/ribbonMaximize.png</file>
-        <file>res/ribbonMinimize.png</file>
-        <file>res/sysbutton.png</file>
-        <file>res/web.ico</file>
-        <file>res/xml.ico</file>
         <file>res/Add.svg</file>
         <file>res/Change.svg</file>
         <file>res/DB.svg</file>
-        <file>res/DownloadDB.svg</file>
-        <file>res/DownloadError.svg</file>
-        <file>res/DownloadLic.svg</file>
-        <file>res/FileDownloaded.svg</file>
         <file>res/FileDownloading.svg</file>
-        <file>res/FileOnDisk.svg</file>
         <file>res/Log.svg</file>
         <file>res/Logo.svg</file>
         <file>res/primerDB.txt</file>
